@@ -1,20 +1,13 @@
-package test.java.example.cucumber.mockmvc;
+package example.cucumber.mockmvc;
 
-import static java.lang.Double.parseDouble;
-import static java.lang.Long.parseLong;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import java.io.UnsupportedEncodingException;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-
-import org.junit.Assert;
+import example.ConsumerService;
+import example.KafkaPublisher;
+import io.cucumber.java.Before;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
 
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
@@ -22,47 +15,34 @@ import io.cucumber.java.en.When;
 
 public class Steps {
 
-	@Autowired
-	ClockMock clock;
 
-	@Autowired
-	MockMvc httpClient;
+    KafkaPublisher kafkaPublisher = Mockito.mock(KafkaPublisher.class);
 
-	private long code;
-	private double actualAmount;
+    @Autowired
+    MockMvc httpClient;
 
-	@Given("I entered the parking {string}")
-	public void i_entered_the_parking(String timeStr)
-			throws NumberFormatException, UnsupportedEncodingException, Exception {
-		clock.setCurrTime(parseTime(timeStr));
-		code = enterParking();
+    @Autowired
+    ConsumerService consumer;
+
+
+	@Given("getting the event")
+	public void getting_the_event() {
+		kafkaPublisher.ingest();
 	}
 
-	@When("I pay at {string}")
-	public void i_pay_at(String timeStr) throws NumberFormatException, UnsupportedEncodingException, Exception {
-		clock.setCurrTime(parseTime(timeStr));
-		actualAmount = calcPayment(code);
-	}
+    @When("event consumer consumes it")
+    public void event_consumer_consumes_it() {
+        consumer.receive();
+    }
 
-	@Then("payment is {double}")
-	public void payment_is(double expectedAmount) {
-		Assert.assertEquals(expectedAmount, actualAmount, 0);
-	}
+    @Then("event is persisted into database {string}")
+    public void event_is_persisted_into_database(String eventRecord) {
+        consumer.process(eventRecord);
+    }
 
-	private double calcPayment(long code) throws NumberFormatException, UnsupportedEncodingException, Exception {
-		return parseDouble(doHttp(get("/parking/" + code + "/amount")));
-	}
+    @Then("a ValidationException is thrown, as the mandatory params are missing in the event.")
+    public void a_ValidationException_is_thrown_as_the_mandatory_params_are_missing_in_the_event() {
+        // Write code here that turns the phrase above into concrete actions
 
-	private long enterParking() throws NumberFormatException, UnsupportedEncodingException, Exception {
-		return parseLong(doHttp(post("/parking")));
-	}
-
-	private String doHttp(MockHttpServletRequestBuilder req) throws UnsupportedEncodingException, Exception {
-		return httpClient.perform(req.contentType(MediaType.APPLICATION_JSON)).andExpect(status().isOk()).andReturn()
-				.getResponse().getContentAsString();
-	}
-
-	private long parseTime(String timeStr) throws ParseException {
-		return new SimpleDateFormat("hh:mm:ss").parse(timeStr).getTime();
-	}
+    }
 }

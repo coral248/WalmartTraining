@@ -1,8 +1,6 @@
-package main.java.example;
+package example;
 
 interface ConsumerStorage {
 	
-	long addParkingEntry(long entryTime);
-	
-	long fetchEntryTime(long code);
+	long addEvent(EventDomain eventDomain);
 }

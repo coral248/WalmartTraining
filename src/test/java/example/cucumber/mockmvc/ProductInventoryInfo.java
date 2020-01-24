@@ -1,4 +1,4 @@
-package test.java.example.cucumber.mockmvc;
+package example.cucumber.mockmvc;
 public class ProductInventoryInfo {
 	private String id;
 	private int inventory;
