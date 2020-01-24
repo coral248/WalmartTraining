@@ -1,11 +1,10 @@
-package example.cucumber.mockmvc;
+package test.java.example.cucumber.mockmvc;
 
-import example.Clock;
 
-final class ClockMock implements Clock {
+
+final class ClockMock  {
 	private long currTime;
 
-	@Override
 	public long now() {
 		return currTime;
 	}

@@ -1,4 +1,4 @@
-package example.cucumber.mockmvc;
+package test.java.example.cucumber.mockmvc;
 
 import static java.lang.Double.parseDouble;
 import static java.lang.Long.parseLong;

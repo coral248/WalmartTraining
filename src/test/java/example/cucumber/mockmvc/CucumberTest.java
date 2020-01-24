@@ -1,4 +1,4 @@
-package example.cucumber.mockmvc;
+package test.java.example.cucumber.mockmvc;
 
 import org.junit.runner.RunWith;
 

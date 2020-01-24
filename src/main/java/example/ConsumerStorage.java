@@ -1,6 +1,6 @@
-package example;
+package main.java.example;
 
-interface ParkingStorage {
+interface ConsumerStorage {
 	
 	long addParkingEntry(long entryTime);
 	
